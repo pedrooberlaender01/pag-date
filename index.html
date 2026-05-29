@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Um convite especial 💕</title>
+<style>
+  /* Reset basico */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --rosa: #f5a3c7;
+    --rosa-claro: #fce4ee;
+    --roxo: #d9c8f0;
+    --vinho: #8a2d4d;
+    --texto-suave: #b89aa5;
+  }
+
+  body {
+    font-family: 'Segoe UI', 'Quicksand', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Fundo rosa suave igual referencia */
+    background: linear-gradient(135deg, #fce8f0, #faf0f5, #f7eef8);
+    padding: 20px;
+    overflow-x: hidden;
+  }
+
+  /* Flores caindo no fundo */
+  .flor {
+    position: fixed;
+    top: -40px;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+    will-change: transform;
+    animation: cair linear infinite;
+  }
+
+  @keyframes cair {
+    0% {
+      transform: translateY(-40px) translateX(0) rotate(0deg);
+      opacity: 0;
+    }
+    10% { opacity: 0.85; }
+    90% { opacity: 0.85; }
+    100% {
+      transform: translateY(105vh) translateX(40px) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  /* Card branco central */
+  .card {
+    position: relative;
+    z-index: 1;
+    background: #ffffff;
+    border-radius: 28px;
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 560px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(180, 100, 140, 0.15);
+    display: none;
+  }
+  .card.ativo { display: block; animation: entra 0.4s ease; }
+
+  @keyframes entra {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* Area de imagem / upload */
+  .midia {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 28px;
+    border-radius: 28px;
+    background: #f3eef2;
+    border: 2px dashed #e0cdd8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.2s, background 0.2s;
+    color: var(--texto-suave);
+    font-size: 13px;
+    gap: 6px;
+  }
+  .midia:hover { background: #efe6ed; }
+  .midia.redonda { border-radius: 50%; }
+  .midia img { width: 100%; height: 100%; object-fit: cover; }
+  .midia .icone { font-size: 30px; }
+
+  /* Titulos */
+  h1 {
+    color: var(--vinho);
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.25;
+    margin-bottom: 28px;
+  }
+  h1.grande { font-size: 38px; letter-spacing: -0.5px; }
+  .sub {
+    color: var(--texto-suave);
+    font-size: 15px;
+    margin-top: -14px;
+    margin-bottom: 30px;
+  }
+
+  /* Botoes */
+  .botoes {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn {
+    border: none;
+    border-radius: 999px;
+    padding: 16px 30px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-sim { background: var(--rosa); color: #fff; }
+  .btn-nao { background: var(--roxo); color: #6b5a8a; }
+  .btn-largo {
+    width: 100%;
+    background: var(--rosa);
+    color: #fff;
+    margin-top: 24px;
+  }
+
+  /* Grade de comidas */
+  .grade {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+  .item {
+    background: #f7f2f6;
+    border: 2px solid transparent;
+    border-radius: 18px;
+    padding: 20px 10px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .item:hover { background: #f1e9f0; }
+  .item.selecionado { border-color: var(--rosa); background: #fdeef5; }
+  .item .emoji { font-size: 32px; display: block; margin-bottom: 8px; }
+  .item .nome { color: #7a6470; font-size: 14px; font-weight: 600; }
+
+  /* Mensagem final */
+  .ps {
+    color: var(--texto-suave);
+    font-size: 14px;
+    font-style: italic;
+    margin-top: 26px;
+    line-height: 1.5;
+  }
+
+  input[type=file] { display: none; }
+
+  /* Campos de data e hora */
+  .campos {
+    text-align: left;
+    margin-bottom: 8px;
+  }
+  .rotulo {
+    display: block;
+    color: var(--vinho);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    margin: 22px 0 12px;
+  }
+
+  /* Calendario custom */
+  .cal {
+    background: linear-gradient(160deg, #fff, #fdf6fa);
+    border: 1px solid #f1e3ec;
+    border-radius: 22px;
+    padding: 18px;
+    box-shadow: 0 10px 30px rgba(200, 120, 160, 0.10);
+  }
+  .cal-cabeca {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .cal-titulo {
+    color: var(--vinho);
+    font-size: 16px;
+    font-weight: 800;
+    text-transform: capitalize;
+  }
+  .cal-nav {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    background: #fbeef5;
+    color: var(--rosa);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .cal-nav:hover { background: var(--rosa); color: #fff; transform: scale(1.08); }
+  .cal-semana {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 6px;
+  }
+  .cal-semana span {
+    text-align: center;
+    color: var(--texto-suave);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 0;
+  }
+  .cal-grade {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+  .dia {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b5560;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, transform 0.15s;
+  }
+  .dia:hover { background: #fbeef5; transform: scale(1.1); }
+  .dia.vazio { cursor: default; }
+  .dia.passado { color: #d8cdd4; cursor: not-allowed; }
+  .dia.passado:hover { background: none; transform: none; }
+  .dia.hoje { box-shadow: inset 0 0 0 2px #f3c6dc; }
+  .dia.escolhido {
+    background: linear-gradient(135deg, var(--rosa), #ec7fb0);
+    color: #fff;
+    font-weight: 800;
+    box-shadow: 0 6px 16px rgba(236, 127, 176, 0.45);
+    transform: scale(1.05);
+  }
+
+  /* Relogio - seletor livre de hora:minuto */
+  .relogio {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+  }
+  .rolete {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .rolete-nav {
+    width: 46px;
+    height: 30px;
+    border: none;
+    border-radius: 12px;
+    background: #fbeef5;
+    color: var(--rosa);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.12s;
+  }
+  .rolete-nav:hover { background: var(--rosa); color: #fff; }
+  .rolete-nav:active { transform: scale(0.9); }
+  .rolete-valor {
+    width: 78px;
+    padding: 14px 0;
+    text-align: center;
+    font-size: 34px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+    background: linear-gradient(135deg, var(--rosa), #ec7fb0);
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(236, 127, 176, 0.35);
+    user-select: none;
+  }
+  .rolete-sep {
+    font-size: 34px;
+    font-weight: 800;
+    color: var(--rosa);
+    margin-bottom: 6px;
+  }
+
+  /* Resumo da escolha */
+  .resumo {
+    min-height: 22px;
+    margin-top: 22px;
+    color: var(--vinho);
+    font-size: 15px;
+    font-weight: 700;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .resumo.mostra { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 480px) {
+    .card { padding: 36px 24px; }
+    h1 { font-size: 24px; }
+    h1.grande { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Flores caindo (geradas via JS) -->
+  <div id="chuvaFlores"></div>
+
+  <!-- PAGINA 1: O convite -->
+  <div class="card ativo" id="pg1">
+    <div class="midia redonda" onclick="abrirUpload('up1')">
+      <input type="file" id="up1" accept="image/*,image/gif" onchange="carregar(this,'img1')">
+      <img id="img1" style="display:none">
+      <span class="icone">📷</span>
+      <span>Adicionar foto/gif</span>
+    </div>
+    <h1>🌸 Quer sair em um encontro comigo? 🌸</h1>
+    <div class="botoes">
+      <button class="btn btn-sim" id="btnSim" onclick="irPara('pg2')">SIM 💕</button>
+      <button class="btn btn-nao" id="btnNao">não... 🙈</button>
+    </div>
+  </div>
+
+  <!-- PAGINA 2: Surpresa -->
+  <div class="card" id="pg2">
+    <div class="midia" onclick="abrirUpload('up2')">
+      <input type="file" id="up2" accept="image/*,image/gif" onchange="carregar(this,'img2')">
+      <img id="img2" style="display:none">
+      <span class="icone">📷</span>
+      <span>Adicionar foto/gif</span>
+    </div>
+    <h1 class="grande">ESPERA, VOCÊ DISSE SIM?? 😭</h1>
+    <p class="sub">Eu estava tão pronto pra você dizer não 🙈</p>
+    <button class="btn btn-sim" onclick="irPara('pgData')">tá bom, tá bom! →</button>
+  </div>
+
+  <!-- PAGINA DATA/HORA -->
+  <div class="card" id="pgData">
+    <div class="midia" onclick="abrirUpload('upData')">
+      <input type="file" id="upData" accept="image/*,image/gif" onchange="carregar(this,'imgData')">
+      <img id="imgData" style="display:none">
+      <span class="icone">📷</span>
+      <span>Adicionar foto/gif</span>
+    </div>
+    <h1>Então... quando você tá livre? 🐾</h1>
+
+    <!-- Calendario custom -->
+    <div class="campos">
+      <label class="rotulo">Escolha um dia 📅</label>
+      <div class="cal">
+        <div class="cal-cabeca">
+          <button type="button" class="cal-nav" onclick="mudarMes(-1)">‹</button>
+          <span class="cal-titulo" id="calTitulo"></span>
+          <button type="button" class="cal-nav" onclick="mudarMes(1)">›</button>
+        </div>
+        <div class="cal-semana">
+          <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+        </div>
+        <div class="cal-grade" id="calGrade"></div>
+      </div>
+
+      <label class="rotulo">Que horas? ⏰</label>
+      <div class="relogio">
+        <div class="rolete">
+          <button type="button" class="rolete-nav" onclick="ajustarHora(1)">▲</button>
+          <div class="rolete-valor" id="valHora">19</div>
+          <button type="button" class="rolete-nav" onclick="ajustarHora(-1)">▼</button>
+        </div>
+        <span class="rolete-sep">:</span>
+        <div class="rolete">
+          <button type="button" class="rolete-nav" onclick="ajustarMin(1)">▲</button>
+          <div class="rolete-valor" id="valMin">00</div>
+          <button type="button" class="rolete-nav" onclick="ajustarMin(-1)">▼</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="resumo" id="resumo"></div>
+    <button class="btn btn-largo" onclick="confirmarData()">marcar o encontro! 💕</button>
+  </div>
+
+  <!-- PAGINA 3: Escolha de comida -->
+  <div class="card" id="pg3">
+    <div class="midia" onclick="abrirUpload('up3')">
+      <input type="file" id="up3" accept="image/*,image/gif" onchange="carregar(this,'img3')">
+      <img id="img3" style="display:none">
+      <span class="icone">📷</span>
+      <span>Adicionar foto/gif</span>
+    </div>
+    <h1>O que vamos comer? 🍜✨</h1>
+    <div class="grade">
+      <div class="item" onclick="escolher(this,'Pizza')"><span class="emoji">🍕</span><span class="nome">Pizza</span></div>
+      <div class="item" onclick="escolher(this,'Sushi')"><span class="emoji">🍣</span><span class="nome">Sushi</span></div>
+      <div class="item" onclick="escolher(this,'Hambúrguer')"><span class="emoji">🍔</span><span class="nome">Hambúrguer</span></div>
+      <div class="item" onclick="escolher(this,'Massa')"><span class="emoji">🍝</span><span class="nome">Massa</span></div>
+      <div class="item" onclick="escolher(this,'Tacos')"><span class="emoji">🌮</span><span class="nome">Tacos</span></div>
+      <div class="item" onclick="escolher(this,'Café')"><span class="emoji">☕</span><span class="nome">Café</span></div>
+    </div>
+    <button class="btn btn-largo" onclick="confirmarComida()">esse aqui! →</button>
+  </div>
+
+  <!-- PAGINA 4: Mensagem final -->
+  <div class="card" id="pg4">
+    <div class="midia redonda" onclick="abrirUpload('up4')">
+      <input type="file" id="up4" accept="image/*,image/gif" onchange="carregar(this,'img4')">
+      <img id="img4" style="display:none">
+      <span class="icone">📷</span>
+      <span>Adicionar foto/gif</span>
+    </div>
+    <h1>Que bom que você não disse não. Nosso encontro tá marcado dia <span id="finalData"></span> às <span id="finalHora"></span> 💕</h1>
+    <p class="ps">P.S. pessoas normais mandam mensagem. Eu fiz um site no almoço. Pra você.</p>
+  </div>
+
+<script>
+  // Comida escolhida
+  let comidaEscolhida = null;
+
+  // Troca de pagina
+  function irPara(id) {
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('ativo'));
+    document.getElementById(id).classList.add('ativo');
+    window.scrollTo(0, 0);
+  }
+
+  // Abre o seletor de arquivo
+  function abrirUpload(inputId) {
+    document.getElementById(inputId).click();
+  }
+
+  // ===== Armazenamento em IndexedDB (aguenta gifs grandes) =====
+  let bancoImg = null;
+
+  function abrirBanco() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open('convite-imagens', 1);
+      req.onupgradeneeded = e => {
+        e.target.result.createObjectStore('imgs');
+      };
+      req.onsuccess = e => { bancoImg = e.target.result; resolve(bancoImg); };
+      req.onerror = e => reject(e.target.error);
+    });
+  }
+
+  function salvarImg(id, blob) {
+    return new Promise((resolve, reject) => {
+      const tx = bancoImg.transaction('imgs', 'readwrite');
+      tx.objectStore('imgs').put(blob, id);
+      tx.oncomplete = () => resolve();
+      tx.onerror = e => reject(e.target.error);
+    });
+  }
+
+  function lerImg(id) {
+    return new Promise((resolve, reject) => {
+      const tx = bancoImg.transaction('imgs', 'readonly');
+      const req = tx.objectStore('imgs').get(id);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = e => reject(e.target.error);
+    });
+  }
+
+  // Mostra imagem no placeholder
+  function mostrarImg(imgId, src) {
+    const img = document.getElementById(imgId);
+    img.src = src;
+    img.style.display = 'block';
+    img.parentElement.querySelectorAll('span').forEach(s => s.style.display = 'none');
+  }
+
+  // Carrega imagem/gif e salva no IndexedDB (como Blob)
+  async function carregar(input, imgId) {
+    const arquivo = input.files[0];
+    if (!arquivo) return;
+    try {
+      // Mostra na hora
+      mostrarImg(imgId, URL.createObjectURL(arquivo));
+      // Persiste o arquivo inteiro
+      if (!bancoImg) await abrirBanco();
+      await salvarImg(imgId, arquivo);
+    } catch (erro) {
+      console.error('Erro ao carregar/salvar arquivo:', erro);
+    }
+  }
+
+  // Restaura imagens salvas
+  async function restaurar() {
+    try {
+      if (!bancoImg) await abrirBanco();
+      for (const id of ['img1','img2','imgData','img3','img4']) {
+        const blob = await lerImg(id);
+        if (blob) mostrarImg(id, URL.createObjectURL(blob));
+      }
+    } catch (erro) {
+      console.error('Erro ao restaurar imagens:', erro);
+    }
+  }
+
+  // Seleciona comida
+  function escolher(el, nome) {
+    document.querySelectorAll('.item').forEach(i => i.classList.remove('selecionado'));
+    el.classList.add('selecionado');
+    comidaEscolhida = nome;
+  }
+
+  // ===== Calendario custom =====
+  const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  let mesAtual, anoAtual;       // mes/ano visiveis no calendario
+  let diaEscolhido = null;      // objeto Date escolhido
+  let hh = 19, mm = 0;          // hora e minuto livres
+
+  // Inicializa com o mes corrente
+  (function initCal() {
+    const agora = new Date();
+    mesAtual = agora.getMonth();
+    anoAtual = agora.getFullYear();
+    renderCal();
+    renderHora();
+  })();
+
+  // Desenha a grade de dias
+  function renderCal() {
+    const grade = document.getElementById('calGrade');
+    document.getElementById('calTitulo').textContent = `${MESES[mesAtual]} de ${anoAtual}`;
+    grade.innerHTML = '';
+
+    const primeiroDiaSemana = new Date(anoAtual, mesAtual, 1).getDay();
+    const totalDias = new Date(anoAtual, mesAtual + 1, 0).getDate();
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+
+    // Celulas vazias antes do dia 1
+    for (let i = 0; i < primeiroDiaSemana; i++) {
+      const v = document.createElement('div');
+      v.className = 'dia vazio';
+      grade.appendChild(v);
+    }
+
+    // Dias do mes
+    for (let d = 1; d <= totalDias; d++) {
+      const cel = document.createElement('div');
+      cel.className = 'dia';
+      cel.textContent = d;
+      const dataCel = new Date(anoAtual, mesAtual, d);
+
+      if (dataCel < hoje) {
+        // Dia no passado - bloqueado
+        cel.classList.add('passado');
+      } else {
+        if (dataCel.getTime() === hoje.getTime()) cel.classList.add('hoje');
+        if (diaEscolhido && dataCel.getTime() === diaEscolhido.getTime()) cel.classList.add('escolhido');
+        cel.onclick = () => {
+          diaEscolhido = dataCel;
+          renderCal();
+          atualizarResumo();
+        };
+      }
+      grade.appendChild(cel);
+    }
+  }
+
+  // Troca de mes
+  function mudarMes(delta) {
+    mesAtual += delta;
+    if (mesAtual < 0) { mesAtual = 11; anoAtual--; }
+    if (mesAtual > 11) { mesAtual = 0; anoAtual++; }
+    renderCal();
+  }
+
+  // Atualiza display do relogio
+  function renderHora() {
+    document.getElementById('valHora').textContent = String(hh).padStart(2, '0');
+    document.getElementById('valMin').textContent = String(mm).padStart(2, '0');
+  }
+
+  // Ajusta hora com wrap 0-23
+  function ajustarHora(delta) {
+    hh = (hh + delta + 24) % 24;
+    renderHora();
+    atualizarResumo();
+  }
+
+  // Ajusta minuto de 5 em 5 com wrap 0-59
+  function ajustarMin(delta) {
+    mm = (mm + delta * 5 + 60) % 60;
+    renderHora();
+    atualizarResumo();
+  }
+
+  // Mostra resumo da escolha
+  function atualizarResumo() {
+    const r = document.getElementById('resumo');
+    if (diaEscolhido) {
+      const dia = diaEscolhido.getDate();
+      const hora = `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+      r.textContent = `${dia} de ${MESES[diaEscolhido.getMonth()]} às ${hora} ✨`;
+      r.classList.add('mostra');
+    } else {
+      r.classList.remove('mostra');
+    }
+  }
+
+  // Confirma data/hora antes da comida
+  function confirmarData() {
+    if (!diaEscolhido) {
+      alert('Escolhe o dia primeiro 📅');
+      return;
+    }
+    irPara('pg3');
+  }
+
+  // Envia tudo pro webhook (text/plain evita preflight CORS)
+  async function enviarWebhook() {
+    const hora = `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+    const ano = diaEscolhido.getFullYear();
+    const mes = String(diaEscolhido.getMonth() + 1).padStart(2,'0');
+    const dia = String(diaEscolhido.getDate()).padStart(2,'0');
+    const payload = {
+      data: `${ano}-${mes}-${dia}`,            // ISO: 2026-05-29
+      dataFormatada: `${dia}/${mes}/${ano}`,    // BR: 29/05/2026
+      hora: hora,                               // 19:00
+      dataHoraISO: `${ano}-${mes}-${dia}T${hora}:00`,
+      comida: comidaEscolhida                   // ex: Pizza
+    };
+    try {
+      await fetch('https://n8n-gend.srv1431760.hstgr.cloud/webhook/date', {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: JSON.stringify(payload)
+      });
+    } catch (erro) {
+      console.error('Erro ao enviar pro webhook:', erro);
+    }
+  }
+
+  function confirmarComida() {
+    if (!comidaEscolhida) {
+      alert('Escolhe uma comida primeiro 😋');
+      return;
+    }
+    // Preenche data e hora escolhidas na tela final
+    const dia = diaEscolhido.getDate();
+    document.getElementById('finalData').textContent = `${dia} de ${MESES[diaEscolhido.getMonth()]}`;
+    document.getElementById('finalHora').textContent = `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+    enviarWebhook();   // dispara data + hora + comida
+    irPara('pg4');
+  }
+
+  // Botao "nao" foge do mouse; some apos 4 fugas e SIM cresce
+  const btnNao = document.getElementById('btnNao');
+  const btnSim = document.getElementById('btnSim');
+  let fugas = 0;
+  btnNao.addEventListener('mouseover', () => {
+    fugas++;
+    if (fugas >= 8) {
+      // Some o botao nao
+      btnNao.style.display = 'none';
+      // SIM vira grandao
+      btnSim.style.fontSize = '26px';
+      btnSim.style.padding = '24px 56px';
+      btnSim.style.transition = 'all 0.3s ease';
+      return;
+    }
+    const x = Math.random() * 200 - 100;
+    const y = Math.random() * 120 - 60;
+    btnNao.style.transform = `translate(${x}px, ${y}px)`;
+  });
+
+  // ===== Chuva de flores no fundo =====
+  function gerarFlores() {
+    const cont = document.getElementById('chuvaFlores');
+    const emojis = ['🌸','🌸','🌸','💕','💗','🌺'];
+    const total = 28;
+    for (let i = 0; i < total; i++) {
+      const f = document.createElement('span');
+      f.className = 'flor';
+      f.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      f.style.left = Math.random() * 100 + 'vw';
+      f.style.fontSize = (14 + Math.random() * 18) + 'px';
+      // Duracao e atraso variados pra parecer natural
+      f.style.animationDuration = (7 + Math.random() * 8) + 's';
+      f.style.animationDelay = (-Math.random() * 15) + 's';
+      cont.appendChild(f);
+    }
+  }
+
+  // Inicializa
+  gerarFlores();
+  restaurar();
+</script>
+</body>
+</html>
