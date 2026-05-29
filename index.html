@@ -72,29 +72,20 @@
     to { opacity: 1; transform: translateY(0) scale(1); }
   }
 
-  /* Area de imagem / upload */
+  /* Area de imagem (gif fixo) */
   .midia {
     width: 150px;
     height: 150px;
     margin: 0 auto 28px;
     border-radius: 28px;
     background: #f3eef2;
-    border: 2px dashed #e0cdd8;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
-    cursor: pointer;
     overflow: hidden;
-    transition: border-color 0.2s, background 0.2s;
-    color: var(--texto-suave);
-    font-size: 13px;
-    gap: 6px;
   }
-  .midia:hover { background: #efe6ed; }
   .midia.redonda { border-radius: 50%; }
   .midia img { width: 100%; height: 100%; object-fit: cover; }
-  .midia .icone { font-size: 30px; }
 
   /* Titulos */
   h1 {
@@ -168,7 +159,6 @@
     line-height: 1.5;
   }
 
-  input[type=file] { display: none; }
 
   /* Campos de data e hora */
   .campos {
@@ -333,11 +323,8 @@
 
   <!-- PAGINA 1: O convite -->
   <div class="card ativo" id="pg1">
-    <div class="midia redonda" onclick="abrirUpload('up1')">
-      <input type="file" id="up1" accept="image/*,image/gif" onchange="carregar(this,'img1')">
-      <img id="img1" style="display:none">
-      <span class="icone">📷</span>
-      <span>Adicionar foto/gif</span>
+    <div class="midia redonda">
+      <img src="gifs/convite.gif" alt="">
     </div>
     <h1>🌸 Quer sair em um encontro comigo? 🌸</h1>
     <div class="botoes">
@@ -348,11 +335,8 @@
 
   <!-- PAGINA 2: Surpresa -->
   <div class="card" id="pg2">
-    <div class="midia" onclick="abrirUpload('up2')">
-      <input type="file" id="up2" accept="image/*,image/gif" onchange="carregar(this,'img2')">
-      <img id="img2" style="display:none">
-      <span class="icone">📷</span>
-      <span>Adicionar foto/gif</span>
+    <div class="midia">
+      <img src="gifs/surpresa.gif" alt="">
     </div>
     <h1 class="grande">ESPERA, VOCÊ DISSE SIM?? 😭</h1>
     <p class="sub">Eu estava tão pronto pra você dizer não 🙈</p>
@@ -361,11 +345,8 @@
 
   <!-- PAGINA DATA/HORA -->
   <div class="card" id="pgData">
-    <div class="midia" onclick="abrirUpload('upData')">
-      <input type="file" id="upData" accept="image/*,image/gif" onchange="carregar(this,'imgData')">
-      <img id="imgData" style="display:none">
-      <span class="icone">📷</span>
-      <span>Adicionar foto/gif</span>
+    <div class="midia">
+      <img src="gifs/agenda.gif" alt="">
     </div>
     <h1>Então... quando você tá livre? 🐾</h1>
 
@@ -406,11 +387,8 @@
 
   <!-- PAGINA 3: Escolha de comida -->
   <div class="card" id="pg3">
-    <div class="midia" onclick="abrirUpload('up3')">
-      <input type="file" id="up3" accept="image/*,image/gif" onchange="carregar(this,'img3')">
-      <img id="img3" style="display:none">
-      <span class="icone">📷</span>
-      <span>Adicionar foto/gif</span>
+    <div class="midia">
+      <img src="gifs/comida.gif" alt="">
     </div>
     <h1>O que vamos comer? 🍜✨</h1>
     <div class="grade">
@@ -426,11 +404,8 @@
 
   <!-- PAGINA 4: Mensagem final -->
   <div class="card" id="pg4">
-    <div class="midia redonda" onclick="abrirUpload('up4')">
-      <input type="file" id="up4" accept="image/*,image/gif" onchange="carregar(this,'img4')">
-      <img id="img4" style="display:none">
-      <span class="icone">📷</span>
-      <span>Adicionar foto/gif</span>
+    <div class="midia redonda">
+      <img src="gifs/final.gif" alt="">
     </div>
     <h1>Que bom que você não disse não. Nosso encontro tá marcado dia <span id="finalData"></span> às <span id="finalHora"></span> 💕</h1>
     <p class="ps">P.S. pessoas normais mandam mensagem. Eu fiz um site no almoço. Pra você.</p>
@@ -445,79 +420,6 @@
     document.querySelectorAll('.card').forEach(c => c.classList.remove('ativo'));
     document.getElementById(id).classList.add('ativo');
     window.scrollTo(0, 0);
-  }
-
-  // Abre o seletor de arquivo
-  function abrirUpload(inputId) {
-    document.getElementById(inputId).click();
-  }
-
-  // ===== Armazenamento em IndexedDB (aguenta gifs grandes) =====
-  let bancoImg = null;
-
-  function abrirBanco() {
-    return new Promise((resolve, reject) => {
-      const req = indexedDB.open('convite-imagens', 1);
-      req.onupgradeneeded = e => {
-        e.target.result.createObjectStore('imgs');
-      };
-      req.onsuccess = e => { bancoImg = e.target.result; resolve(bancoImg); };
-      req.onerror = e => reject(e.target.error);
-    });
-  }
-
-  function salvarImg(id, blob) {
-    return new Promise((resolve, reject) => {
-      const tx = bancoImg.transaction('imgs', 'readwrite');
-      tx.objectStore('imgs').put(blob, id);
-      tx.oncomplete = () => resolve();
-      tx.onerror = e => reject(e.target.error);
-    });
-  }
-
-  function lerImg(id) {
-    return new Promise((resolve, reject) => {
-      const tx = bancoImg.transaction('imgs', 'readonly');
-      const req = tx.objectStore('imgs').get(id);
-      req.onsuccess = () => resolve(req.result || null);
-      req.onerror = e => reject(e.target.error);
-    });
-  }
-
-  // Mostra imagem no placeholder
-  function mostrarImg(imgId, src) {
-    const img = document.getElementById(imgId);
-    img.src = src;
-    img.style.display = 'block';
-    img.parentElement.querySelectorAll('span').forEach(s => s.style.display = 'none');
-  }
-
-  // Carrega imagem/gif e salva no IndexedDB (como Blob)
-  async function carregar(input, imgId) {
-    const arquivo = input.files[0];
-    if (!arquivo) return;
-    try {
-      // Mostra na hora
-      mostrarImg(imgId, URL.createObjectURL(arquivo));
-      // Persiste o arquivo inteiro
-      if (!bancoImg) await abrirBanco();
-      await salvarImg(imgId, arquivo);
-    } catch (erro) {
-      console.error('Erro ao carregar/salvar arquivo:', erro);
-    }
-  }
-
-  // Restaura imagens salvas
-  async function restaurar() {
-    try {
-      if (!bancoImg) await abrirBanco();
-      for (const id of ['img1','img2','imgData','img3','img4']) {
-        const blob = await lerImg(id);
-        if (blob) mostrarImg(id, URL.createObjectURL(blob));
-      }
-    } catch (erro) {
-      console.error('Erro ao restaurar imagens:', erro);
-    }
   }
 
   // Seleciona comida
@@ -709,7 +611,6 @@
 
   // Inicializa
   gerarFlores();
-  restaurar();
 </script>
 </body>
 </html>
